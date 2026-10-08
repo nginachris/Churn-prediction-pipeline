@@ -2,6 +2,21 @@
 
 An end-to-end machine learning project for predicting whether a customer is likely to leave a subscription service.
 
+## Project overview
+
+The model predicts customer churn using information such as:
+
+- customer tenure;
+- monthly charges;
+- support ticket activity;
+- contract type;
+- payment method; and
+- whether the customer has add-ons.
+
+The project follows a complete data pipeline. Raw customer records are cleaned and validated, a classification model is trained and evaluated, and the trained model is made available through a FastAPI service.
+
+This project is designed as a portfolio example of data pipelines, data hygiene, model evaluation, and deployment. The included customer records are fictional sample data and should be replaced with a larger historical dataset for real use.
+
 ## Project layout
 
 ```text
@@ -58,9 +73,28 @@ The cleaning step:
 - fills missing numeric values with the training median;
 - fills missing categorical values with the most common category.
 
+## How the pipeline works
+
+1. `src/data_cleaning.py` loads and validates the customer data.
+2. `src/train.py` splits the data into training and test sets.
+3. Numeric values are scaled and categorical values are one-hot encoded.
+4. A logistic regression classifier learns patterns associated with churn.
+5. Evaluation metrics and the trained model are saved in `artifacts/`.
+6. `src/api.py` loads the model and serves predictions over HTTP.
+
+## API endpoints
+
+`GET /health` reports whether the service is running and whether a trained model is available.
+
+`POST /predict` accepts customer details and returns a churn probability and a boolean prediction. FastAPI also provides interactive API documentation at `/docs`.
+
 ## Evaluation
 
 `python -m src.train` creates `artifacts/metrics.json` with accuracy, precision, recall, F1, ROC-AUC, and the confusion matrix. The model uses a stratified 80/20 train/test split and a preprocessing pipeline so the same transformations are applied during training and API inference.
 
 This repository includes a small sample dataset for demonstrating the pipeline. For production use, replace it with a larger, representative historical dataset and add time-based validation where appropriate.
+
+## Limitations and next steps
+
+The sample dataset is intentionally small, so its evaluation scores should not be treated as evidence of production performance. A production version should use more historical records, monitor data drift, compare several models, tune the decision threshold, and validate predictions on a future time period.
 
